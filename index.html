@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Examen CTC P5.1</title>
+  <style>
+    :root{
+      --bg:#f3f6fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#d9e2ef;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --ok-bg:#ecfdf5;
+      --ok-bd:#10b981;
+      --bad-bg:#fef2f2;
+      --bad-bd:#ef4444;
+      --miss-bg:#fffbeb;
+      --miss-bd:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:16px;
+    }
+    .hero,.card,.result{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:0 8px 24px rgba(15,23,42,.06);
+    }
+    .hero{
+      padding:20px;
+      margin-bottom:16px;
+      background:linear-gradient(135deg,#0f172a,#1d4ed8);
+      color:#fff;
+    }
+    h1{
+      margin:0 0 8px 0;
+      font-size:1.8rem;
+    }
+    .sub{
+      margin:0;
+      opacity:.95;
+      font-size:.98rem;
+    }
+    .meta{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:10px;
+      margin-top:16px;
+    }
+    .meta input{
+      width:100%;
+      border:1px solid rgba(255,255,255,.3);
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      border-radius:12px;
+      padding:12px 14px;
+      font-size:16px;
+      -webkit-appearance:none;
+      appearance:none;
+    }
+    .meta input::placeholder{color:rgba(255,255,255,.9)}
+    .intro{
+      padding:16px 18px;
+      margin-bottom:16px;
+      font-size:.98rem;
+      color:var(--muted);
+    }
+    .question{
+      padding:18px;
+      margin-bottom:14px;
+    }
+    .qnum{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#e8f0ff;
+      color:#1e40af;
+      font-weight:700;
+      font-size:.88rem;
+      margin-bottom:10px;
+    }
+    .qtext{
+      font-weight:700;
+      font-size:1.05rem;
+      margin-bottom:14px;
+    }
+    .options{
+      display:grid;
+      gap:10px;
+    }
+    .option{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .option input{
+      margin-top:3px;
+      transform:scale(1.15);
+      flex:0 0 auto;
+    }
+    .badge{
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#eef2ff;
+      color:#3730a3;
+      font-weight:700;
+      flex:0 0 auto;
+      font-size:.9rem;
+    }
+    .otext{flex:1}
+    .correct{
+      background:var(--ok-bg);
+      border-color:var(--ok-bd);
+    }
+    .incorrect{
+      background:var(--bad-bg);
+      border-color:var(--bad-bd);
+    }
+    .missed{
+      background:var(--miss-bg);
+      border-color:var(--miss-bd);
+    }
+    .feedback{
+      display:none;
+      margin-top:12px;
+      border-radius:12px;
+      padding:12px 14px;
+      font-weight:600;
+      font-size:.95rem;
+    }
+    .feedback.show{display:block}
+    .feedback.ok{
+      background:var(--ok-bg);
+      border:1px solid var(--ok-bd);
+      color:#065f46;
+    }
+    .feedback.bad{
+      background:var(--bad-bg);
+      border:1px solid var(--bad-bd);
+      color:#991b1b;
+    }
+    .feedback.warn{
+      background:var(--miss-bg);
+      border:1px solid var(--miss-bd);
+      color:#92400e;
+    }
+    .actions{
+      position:sticky;
+      bottom:0;
+      padding:12px 0 4px;
+      background:linear-gradient(to top,var(--bg) 70%,rgba(243,246,251,0));
+    }
+    .actionbar{
+      background:rgba(255,255,255,.95);
+      backdrop-filter:blur(8px);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:0 8px 24px rgba(15,23,42,.08);
+      padding:12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    button{
+      border:0;
+      border-radius:12px;
+      padding:14px 18px;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      -webkit-appearance:none;
+      appearance:none;
+      touch-action:manipulation;
+      min-width:170px;
+    }
+    .primary{background:var(--primary);color:#fff}
+    .primary:active,.primary:hover{background:var(--primary-dark)}
+    .secondary{background:#e5e7eb;color:#111827}
+    .secondary:active,.secondary:hover{background:#d1d5db}
+    .result{
+      display:none;
+      padding:18px;
+      margin:0 0 16px 0;
+    }
+    .result.show{display:block}
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+    .box{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px;
+      text-align:center;
+      background:#f8fafc;
+    }
+    .box .lab{
+      display:block;
+      color:var(--muted);
+      margin-bottom:6px;
+      font-size:.95rem;
+    }
+    .box .val{
+      display:block;
+      font-size:1.45rem;
+      font-weight:800;
+    }
+    .message{
+      margin-top:14px;
+      padding:14px;
+      border-radius:12px;
+      border:1px solid #c7d2fe;
+      background:#eef2ff;
+      color:#312e81;
+      font-weight:700;
+    }
+    @media (max-width:640px){
+      .wrap{padding:12px}
+      .hero,.question,.result,.intro{border-radius:16px}
+      h1{font-size:1.45rem}
+      .qtext{font-size:1rem}
+      .option{padding:11px}
+      .actions{position:static;padding-top:8px}
+      button{flex:1 1 100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Examen CTC P5.1</h1>
+      <p class="sub">Selecciona una sola alternativa por pregunta y presiona “Enviar examen” para corregir.</p>
+      <div class="meta">
+        <input type="text" placeholder="Nombre del estudiante">
+        <input type="text" placeholder="Fecha">
+        <input type="text" placeholder="Curso o sección">
+      </div>
+    </section>
+
+    <section id="result" class="result">
+      <h2 style="margin:0">Resultado del examen</h2>
+      <div class="grid">
+        <div class="box"><span class="lab">Correctas</span><span class="val" id="correctas">0</span></div>
+        <div class="box"><span class="lab">Incorrectas</span><span class="val" id="incorrectas">0</span></div>
+        <div class="box"><span class="lab">Puntaje</span><span class="val" id="puntaje">0 / 25</span></div>
+        <div class="box"><span class="lab">Porcentaje</span><span class="val" id="porcentaje">0%</span></div>
+      </div>
+      <div class="message" id="mensaje"></div>
+    </section>
+
+    <section class="card intro">
+      Lee atentamente cada pregunta. El examen funciona en Safari, Chrome y navegadores móviles modernos.
+    </section>
+
+    <form id="examForm">
+      <section class="card question" data-correct="B">
+        <div class="qnum">Pregunta 1</div>
+        <div class="qtext">¿En el sistema CTC cuál es la validez de la vía libre?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q1" value="A"><span class="badge">A</span><span class="otext">En este sistema, la validez de la vía libre es hasta la próxima señal Absoluta.</span></label>
+          <label class="option"><input type="radio" name="q1" value="B"><span class="badge">B</span><span class="otext">En este sistema, la validez de la vía libre es hasta la próxima señal de detención.</span></label>
+          <label class="option"><input type="radio" name="q1" value="C"><span class="badge">C</span><span class="otext">En este sistema, la validez de la vía libre es hasta la próxima señal de entrada.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="C">
+        <div class="qnum">Pregunta 2</div>
+        <div class="qtext">¿En este sistema cuántas señales principales existen y cuáles son?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q2" value="A"><span class="badge">A</span><span class="otext">Se distinguen cinco tipos de señales principales: Señales de Entrada, Señales de Salida, Señales de Salida Interior, Señales de Seguimiento y Señal Absoluta, caracterizadas por su montaje sobre un poste con franjas diagonales blancas y rojas además de un letrero identificador.</span></label>
+          <label class="option"><input type="radio" name="q2" value="B"><span class="badge">B</span><span class="otext">Se distinguen cinco tipos de señales principales: Señales de Entrada, Señales de Salida, Señales de Salida Interior, Señales de Seguimiento y Señales de Avanzada Absoluta, caracterizadas por su montaje sobre un poste con franjas diagonales blancas y negras además de un letrero identificador.</span></label>
+          <label class="option"><input type="radio" name="q2" value="C"><span class="badge">C</span><span class="otext">Se distinguen cinco tipos de señales principales: Señales de Entrada, Señales de Salida, Señales de Salida Interior, Señales de Seguimiento y Señales de Avanzada Absoluta, caracterizadas por su montaje sobre un poste con franjas diagonales blancas y rojas además de un letrero identificador.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="B">
+        <div class="qnum">Pregunta 3</div>
+        <div class="qtext">Las señales absolutas que posean dos focos, ¿cuáles son los aspectos que estas pueden presentar?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q3" value="A"><span class="badge">A</span><span class="otext">Foco superior verde, intermedio amarillo e inferior rojo.</span></label>
+          <label class="option"><input type="radio" name="q3" value="B"><span class="badge">B</span><span class="otext">Foco superior verde e inferior rojo.</span></label>
+          <label class="option"><input type="radio" name="q3" value="C"><span class="badge">C</span><span class="otext">Foco superior verde, intermedio rojo e inferior amarillo.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="B">
+        <div class="qnum">Pregunta 4</div>
+        <div class="qtext">Si se ve enfrentado a una señal absoluta a peligro, ¿cuál es la forma correcta de proceder?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q4" value="A"><span class="badge">A</span><span class="otext">No deben ser sobrepasadas más que con autorización expresa del Controlador de Tráfico con OIS General verbal.</span></label>
+          <label class="option"><input type="radio" name="q4" value="B"><span class="badge">B</span><span class="otext">No deben ser sobrepasadas más que con autorización expresa del Controlador de Tráfico con OIS de Sobrepaso.</span></label>
+          <label class="option"><input type="radio" name="q4" value="C"><span class="badge">C</span><span class="otext">No deben ser sobrepasadas más que con autorización expresa del Controlador de Tráfico con OIS General escrita.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="C">
+        <div class="qnum">Pregunta 5</div>
+        <div class="qtext">Señales de Maniobras (M). ¿Cuál es el aspecto que muestra esta señal estando a libre?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q5" value="A"><span class="badge">A</span><span class="otext">Aspecto Rojo/Blanco fijo simultáneo: Autoriza el retroceso. Aspecto Rojo solo: Ordena detenerse ante la misma sin sobrepasarla.</span></label>
+          <label class="option"><input type="radio" name="q5" value="B"><span class="badge">B</span><span class="otext">Aspecto Rojo/Blanco fijo simultáneo: Autoriza el avance en maniobras. Aspecto Rojo solo: Ordena continuar ante la misma sin sobrepasarla.</span></label>
+          <label class="option"><input type="radio" name="q5" value="C"><span class="badge">C</span><span class="otext">Aspecto Rojo/Blanco fijo simultáneo: Autoriza el avance en maniobras. Aspecto Rojo solo: Ordena detenerse ante la misma sin sobrepasarla.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="C">
+        <div class="qnum">Pregunta 6</div>
+        <div class="qtext">¿Cómo está concebido y diseñado este sistema de movilización?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q6" value="A"><span class="badge">A</span><span class="otext">Está concebido y diseñado en seguridad intrínseca, toda falla que ocurra en este sistema lo lleva a la situación más expedita para el tráfico.</span></label>
+          <label class="option"><input type="radio" name="q6" value="B"><span class="badge">B</span><span class="otext">Está concebido y diseñado en seguridad intrínseca, toda falla que ocurra en este sistema lo lleva a la situación más permisiva para el tráfico.</span></label>
+          <label class="option"><input type="radio" name="q6" value="C"><span class="badge">C</span><span class="otext">Está concebido y diseñado en seguridad intrínseca, toda falla que ocurra en este sistema lo lleva a la situación más segura para el tráfico.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="B">
+        <div class="qnum">Pregunta 7</div>
+        <div class="qtext">En el sistema CTC, ¿dónde se efectúan las maniobras?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q7" value="A"><span class="badge">A</span><span class="otext">Se realizan solo hacia la plena vía y/o el ingreso a ella, para cambiar un tren de una vía a otra, o bien, desde una vía no circuitada, autorizadas con señales fijas luminosas. En los patios no señalizados ni circuitados se autorizan con señales reglamentarias.</span></label>
+          <label class="option"><input type="radio" name="q7" value="B"><span class="badge">B</span><span class="otext">Se realizan desde el interior de una estación hacia la plena vía y/o el ingreso a ella, para cambiar un tren de una vía a otra, o bien, salir o entrar desde una vía circuitada a una no circuitada y viceversa, dentro de la estación, autorizadas con señales fijas luminosas. En los patios no señalizados ni circuitados se autorizan con señales portátiles reglamentarias.</span></label>
+          <label class="option"><input type="radio" name="q7" value="C"><span class="badge">C</span><span class="otext">Se realizan, dentro de la estación, autorizadas con señales fijas luminosas. En los patios no señalizados ni circuitados se autorizan con señales portátiles reglamentarias.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="D">
+        <div class="qnum">Pregunta 8</div>
+        <div class="qtext">Dentro de la descripción del sistema CTC:</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q8" value="A"><span class="badge">A</span><span class="otext">En tramos de doble vía, la circulación es bidireccional, siendo el modo preferente de circulación por la derecha.</span></label>
+          <label class="option"><input type="radio" name="q8" value="B"><span class="badge">B</span><span class="otext">Los cambios de dirección, adelantamiento y cruzamientos se realizan por medio de aparatos de cambio motorizados o autorizados por cambios de operación manual con cerraduras Bouré.</span></label>
+          <label class="option"><input type="radio" name="q8" value="C"><span class="badge">C</span><span class="otext">En este sistema, la validez de la vía libre es hasta la próxima señal de detención.</span></label>
+          <label class="option"><input type="radio" name="q8" value="D"><span class="badge">D</span><span class="otext">Solo A, B y C son correctas.</span></label>
+          <label class="option"><input type="radio" name="q8" value="E"><span class="badge">E</span><span class="otext">Solo A y B es correcto.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="B">
+        <div class="qnum">Pregunta 9</div>
+        <div class="qtext">¿Cómo se autoriza la faena en régimen de mantenimiento con tráfico programado?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q9" value="A"><span class="badge">A</span><span class="otext">El Controlador de Tráfico procederá a autorizarlo a través de OIS General solo si ésta se desarrolla sin ningún tipo de vehículos, solo con personas y máquinas portátiles por un tiempo predeterminado, durante el cual, se permite el paso de trenes u operaciones programadas.</span></label>
+          <label class="option"><input type="radio" name="q9" value="B"><span class="badge">B</span><span class="otext">El Controlador de Tráfico procederá a autorizarlo a través de OIS General escrita solo si ésta se desarrolla sin ningún tipo de vehículos, solo con personas y máquinas portátiles por un tiempo predeterminado, durante el cual, se permite el paso de trenes u operaciones programadas.</span></label>
+          <label class="option"><input type="radio" name="q9" value="C"><span class="badge">C</span><span class="otext">El Controlador de Tráfico procederá a autorizarlo a través de OIS General verbal solo si ésta se desarrolla sin ningún tipo de vehículos, solo con personas y máquinas portátiles por un tiempo predeterminado, durante el cual, no se permite el paso de trenes u operaciones programadas.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="A">
+        <div class="qnum">Pregunta 10</div>
+        <div class="qtext">¿Dónde se realiza la protección en régimen de mantenimiento con tráfico programado?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q10" value="A"><span class="badge">A</span><span class="otext">La protección de la faena se realizará con balizaje definido para tal efecto en virtud al desarrollo de ésta dentro o fuera de los 2.20 m. de distancia medidos desde la cara exterior del riel. (Baliza Indicador protección de Cuadrilla o Indicador Toque de Pito Hombres Trabajando respectivamente).</span></label>
+          <label class="option"><input type="radio" name="q10" value="B"><span class="badge">B</span><span class="otext">La protección de la faena se realizará con balizaje definido para tal efecto en virtud al desarrollo de ésta dentro o fuera de los 2.20 m. de distancia medidos desde la cara interior del riel. (Baliza Indicador protección de Cuadrilla o Indicador Toque de Pito Hombres Trabajando respectivamente).</span></label>
+          <label class="option"><input type="radio" name="q10" value="C"><span class="badge">C</span><span class="otext">La protección de la faena se realizará con balizaje definido para tal efecto en virtud al desarrollo de ésta fuera de los 2.20 m. de distancia medidos desde la cara exterior del riel. (Baliza Indicador protección de Cuadrilla o Indicador Toque de Pito Hombres Trabajando respectivamente).</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="C">
+        <div class="qnum">Pregunta 11</div>
+        <div class="qtext">¿Cómo se autoriza y bajo qué aspecto en régimen de liberación de vía por tiempo?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q11" value="A"><span class="badge">A</span><span class="otext">El Controlador de Tráfico procederá a autorizarlo a través de OIS General Escrita solo si ésta se desarrolla sin ningún tipo de vehículos, solo con personas y máquinas portátiles en intervalos de tiempo disponibles, durante el cual, no habrá paso de trenes (existencia de ventanas).</span></label>
+          <label class="option"><input type="radio" name="q11" value="B"><span class="badge">B</span><span class="otext">El Controlador de Tráfico procederá a autorizarlo a través de OIS General verbal solo si ésta se desarrolla sin ningún tipo de vehículos, solo con personas y máquinas portátiles en intervalos de tiempo disponibles, durante el cual, habrá paso de trenes (con existencia de ventanas).</span></label>
+          <label class="option"><input type="radio" name="q11" value="C"><span class="badge">C</span><span class="otext">El Controlador de Tráfico procederá a autorizarlo a través de OIS General verbal solo si ésta se desarrolla sin ningún tipo de vehículos, solo con personas y máquinas portátiles en intervalos de tiempo disponibles, durante el cual, no habrá paso de trenes (existencia de ventanas).</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="A">
+        <div class="qnum">Pregunta 12</div>
+        <div class="qtext">¿Cómo se autoriza un régimen de ocupación ordinario de vía?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q12" value="A"><span class="badge">A</span><span class="otext">La faena será autorizada mediante una OIS General escrita otorgada por el Controlador de Tráfico al Encargado de Protección de Faena.</span></label>
+          <label class="option"><input type="radio" name="q12" value="B"><span class="badge">B</span><span class="otext">La faena será autorizada mediante una OIS General otorgada por el Controlador de Tráfico al Encargado de Protección de Faena.</span></label>
+          <label class="option"><input type="radio" name="q12" value="C"><span class="badge">C</span><span class="otext">La faena será autorizada mediante una OIS General escrita otorgada por el Movilizador al Encargado de Protección de Faena.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="C">
+        <div class="qnum">Pregunta 13</div>
+        <div class="qtext">¿Cómo se protegerá esta faena?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q13" value="A"><span class="badge">A</span><span class="otext">La faena se protegerá con Baliza de protección en ambos extremos.</span></label>
+          <label class="option"><input type="radio" name="q13" value="B"><span class="badge">B</span><span class="otext">La protección de la faena se realizará con Baliza roja al costado de la vía.</span></label>
+          <label class="option"><input type="radio" name="q13" value="C"><span class="badge">C</span><span class="otext">La protección de la faena se realizará con Baliza roja en ambos extremos.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="A">
+        <div class="qnum">Pregunta 14</div>
+        <div class="qtext">¿Cómo procederá el Controlador de Tráfico una vez autorizada la faena?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q14" value="A"><span class="badge">A</span><span class="otext">El Controlador de Tráfico procederá a bloquear el acceso al block, con los dispositivos de bloqueo y las señales de salida a peligro.</span></label>
+          <label class="option"><input type="radio" name="q14" value="B"><span class="badge">B</span><span class="otext">El Controlador de Tráfico procederá a distribuir una OIS general para todo tren y bloqueará las señales de salida.</span></label>
+          <label class="option"><input type="radio" name="q14" value="C"><span class="badge">C</span><span class="otext">El Controlador de Tráfico procederá a bloquear el acceso al block, con los dispositivos de bloqueo y las señales de entrada a peligro.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="C">
+        <div class="qnum">Pregunta 15</div>
+        <div class="qtext">¿Cómo se realiza el ingreso de un tren de faena para la faena en régimen ocupación ordinario de vía y quién lo autoriza?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q15" value="A"><span class="badge">A</span><span class="otext">El ingreso al sector de la faena lo autorizará el Controlador de Tráfico, previo retiro de la baliza roja, la cual será reinstalada una vez que el tren ingrese completo al sector de la cortada.</span></label>
+          <label class="option"><input type="radio" name="q15" value="B"><span class="badge">B</span><span class="otext">El ingreso al sector de la faena lo autorizará el Encargado de Protección de Faena Único, previo retiro de la baliza roja, la cual será reinstalada una vez que el tren ingrese completo al sector de la cortada.</span></label>
+          <label class="option"><input type="radio" name="q15" value="C"><span class="badge">C</span><span class="otext">El ingreso al sector de la faena lo autorizará el Encargado de Protección de Faena, previo retiro de la baliza roja, la cual será reinstalada una vez que el tren ingrese completo al sector de la cortada.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="B">
+        <div class="qnum">Pregunta 16</div>
+        <div class="qtext">¿Cómo procederá el maquinista una vez ingresado al lugar de la cortada?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q16" value="A"><span class="badge">A</span><span class="otext">Una vez ingresado el tren de faenas al sector de la cortada, el Encargado de Faena deberá informar al Controlador de Tráfico para que este cancele la movilización.</span></label>
+          <label class="option"><input type="radio" name="q16" value="B"><span class="badge">B</span><span class="otext">Una vez ingresado el tren de faenas al sector de la cortada, el Maquinista deberá informar al Controlador de Tráfico para que este cancele la movilización, quedando protegido el tren con la OIS General escrita otorgada al Encargado de Protección de Faenas.</span></label>
+          <label class="option"><input type="radio" name="q16" value="C"><span class="badge">C</span><span class="otext">Una vez ingresado el tren de faenas al sector de la cortada, el Maquinista deberá informar al Controlador de Tráfico para que este cancele la movilización, quedando protegido el tren con la OIS Verbal otorgada al Encargado de Protección de Faenas.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="C">
+        <div class="qnum">Pregunta 17</div>
+        <div class="qtext">¿Cómo realizará los movimientos el maquinista una vez ingresado a los límites de la faena?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q17" value="A"><span class="badge">A</span><span class="otext">Todos los movimientos dentro del límite de faenas con cortadas serán a Velocidad Restringida.</span></label>
+          <label class="option"><input type="radio" name="q17" value="B"><span class="badge">B</span><span class="otext">Todos los movimientos dentro del límite de faenas con cortadas serán a Velocidad de Maniobra.</span></label>
+          <label class="option"><input type="radio" name="q17" value="C"><span class="badge">C</span><span class="otext">Todos los movimientos dentro del límite de faenas con cortadas serán a Marcha de Emergencia.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="B">
+        <div class="qnum">Pregunta 18</div>
+        <div class="qtext">¿Cuál es la forma de proceder cuando se necesite movilizar más de un tren de faena para la faena?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q18" value="A"><span class="badge">A</span><span class="otext">Cuando se necesite movilizar más de un tren de faenas para la faena, esto podrá ser en forma simultánea desde ambas estaciones.</span></label>
+          <label class="option"><input type="radio" name="q18" value="B"><span class="badge">B</span><span class="otext">Cuando se necesite movilizar más de un tren de faenas para la faena, esto no podrá ser en forma simultánea desde ambas estaciones.</span></label>
+          <label class="option"><input type="radio" name="q18" value="C"><span class="badge">C</span><span class="otext">Cuando se necesite movilizar más de un tren de faenas para la faena, esto podrá ser en forma simultánea desde ambas estaciones autorizado por el controlador de tráfico.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="A">
+        <div class="qnum">Pregunta 19</div>
+        <div class="qtext">¿Cómo actuará el Encargado de Protección de Faena cuando necesite movilizar otro tren de faena para la faena?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q19" value="A"><span class="badge">A</span><span class="otext">Para movilizar otro tren de faenas al límite de la faena con cortada, el Encargado de Protección de Faena deberá confirmar con el Controlador de Tráfico, mediante OIS General verbal, que el primer tren de faenas se encuentra dentro del sector de la cortada.</span></label>
+          <label class="option"><input type="radio" name="q19" value="B"><span class="badge">B</span><span class="otext">Para movilizar otro tren de faenas al límite de la faena con cortada, el Encargado de Protección de Faena deberá confirmar con el Controlador de Tráfico, mediante OIS General Escrita, que el primer tren de faenas se encuentra dentro del sector de la cortada.</span></label>
+          <label class="option"><input type="radio" name="q19" value="C"><span class="badge">C</span><span class="otext">Para movilizar otro tren de faenas al límite de la faena con cortada, el Encargado de Protección de Faena deberá confirmar con el Controlador de Tráfico, mediante OIS General, que el primer tren de faenas se encuentra fuera del sector de la cortada.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="A">
+        <div class="qnum">Pregunta 20</div>
+        <div class="qtext">Cuando los trenes de faenas deban salir de los límites de la faena con cortada, el Encargado de Protección de Faenas deberá solicitar autorización al Controlador de Tráfico, quien le otorgará:</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q20" value="A"><span class="badge">A</span><span class="otext">Una OIS General escrita.</span></label>
+          <label class="option"><input type="radio" name="q20" value="B"><span class="badge">B</span><span class="otext">Una OIS General.</span></label>
+          <label class="option"><input type="radio" name="q20" value="C"><span class="badge">C</span><span class="otext">Una OIS General verbal.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="B">
+        <div class="qnum">Pregunta 21</div>
+        <div class="qtext">¿Qué caracteriza al Régimen ocupacional especial de vía?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q21" value="A"><span class="badge">A</span><span class="otext">En dicho régimen, se podrán ejecutar varias faenas, sin trenes de faenas.</span></label>
+          <label class="option"><input type="radio" name="q21" value="B"><span class="badge">B</span><span class="otext">En dicho régimen, se podrán ejecutar varias faenas en forma simultánea, con o sin trenes de faenas.</span></label>
+          <label class="option"><input type="radio" name="q21" value="C"><span class="badge">C</span><span class="otext">En dicho régimen, se podrán ejecutar algunas faenas en forma simultánea, con o sin trenes de faenas.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="B">
+        <div class="qnum">Pregunta 22</div>
+        <div class="qtext">¿En quién reside el control y el mando unificado de esta faena?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q22" value="A"><span class="badge">A</span><span class="otext">El control y el mando unificado de estas reside en un Encargado de Protección de Faenas.</span></label>
+          <label class="option"><input type="radio" name="q22" value="B"><span class="badge">B</span><span class="otext">El control y el mando unificado de estas reside en un Encargado de Protección de Faenas único.</span></label>
+          <label class="option"><input type="radio" name="q22" value="C"><span class="badge">C</span><span class="otext">El control y el mando unificado de estas reside en varios Encargados de Protección de Faenas único.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="A">
+        <div class="qnum">Pregunta 23</div>
+        <div class="qtext">El Inspector de Turno, en acuerdo con el Controlador de Tráfico del Sector, ¿cómo procederán cuando le hayan notificado de un accidente?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q23" value="A"><span class="badge">A</span><span class="otext">El Inspector de Turno, en acuerdo con el Controlador de Tráfico del Sector, designará un jefe delegado.</span></label>
+          <label class="option"><input type="radio" name="q23" value="B"><span class="badge">B</span><span class="otext">El Inspector de Turno, en acuerdo con el encargado de faena del Sector, designará un jefe delegado.</span></label>
+          <label class="option"><input type="radio" name="q23" value="C"><span class="badge">C</span><span class="otext">El Inspector de Turno, en acuerdo con el Controlador de Tráfico y el movilizador del Sector, designarán un jefe delegado.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="A">
+        <div class="qnum">Pregunta 24</div>
+        <div class="qtext">¿Cómo se realizarán las movilizaciones hacia el lugar del accidente?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q24" value="A"><span class="badge">A</span><span class="otext">Todas las movilizaciones hacia o desde el lugar del accidente serán mediante OIS de Sobrepaso, autorizadas por el Controlador de Tráfico.</span></label>
+          <label class="option"><input type="radio" name="q24" value="B"><span class="badge">B</span><span class="otext">Todas las movilizaciones hacia o desde el lugar del accidente serán mediante OIS de Sobrepaso, autorizadas por el Inspector de turno.</span></label>
+          <label class="option"><input type="radio" name="q24" value="C"><span class="badge">C</span><span class="otext">Todas las movilizaciones hacia o desde el lugar del accidente serán mediante OIS de Sobrepaso, autorizadas por el jefe delegado.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+
+      <section class="card question" data-correct="B">
+        <div class="qnum">Pregunta 25</div>
+        <div class="qtext">Si fuese necesario enviar equipos auxiliadores al lugar del accidente, la CCT, ¿cómo denominará a la zona del accidente?</div>
+        <div class="options">
+          <label class="option"><input type="radio" name="q25" value="A"><span class="badge">A</span><span class="otext">Si fuese necesario enviar equipos auxiliadores al lugar del accidente, la CCT denominará a la zona del accidente “Accidente – PK punto Kilométrico”.</span></label>
+          <label class="option"><input type="radio" name="q25" value="B"><span class="badge">B</span><span class="otext">Si fuese necesario enviar equipos auxiliadores al lugar del accidente, la CCT denominará a la zona del accidente “Accidente - Km - XX”.</span></label>
+          <label class="option"><input type="radio" name="q25" value="C"><span class="badge">C</span><span class="otext">Si fuese necesario enviar equipos auxiliadores al lugar del accidente, la CCT denominará a la zona del accidente previa consulta al inspector de Turno “Accidente - Km - XX”.</span></label>
+        </div>
+        <div class="feedback"></div>
+      </section>
+    </form>
+
+    <div class="actions">
+      <div class="actionbar">
+        <button type="button" class="primary" id="sendBtn">Enviar examen</button>
+        <button type="button" class="secondary" id="resetBtn">Reiniciar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const questions = Array.from(document.querySelectorAll('.question'));
+      const result = document.getElementById('result');
+      const correctasEl = document.getElementById('correctas');
+      const incorrectasEl = document.getElementById('incorrectas');
+      const puntajeEl = document.getElementById('puntaje');
+      const porcentajeEl = document.getElementById('porcentaje');
+      const mensajeEl = document.getElementById('mensaje');
+      const form = document.getElementById('examForm');
+
+      function mensajeFinal(p) {
+        if (p >= 90) return 'Excelente. Dominio muy alto de los contenidos.';
+        if (p >= 70) return 'Muy buen resultado. Mantienes un nivel satisfactorio.';
+        if (p >= 50) return 'Resultado aceptable, pero conviene reforzar algunos contenidos.';
+        return 'Debes reforzar contenidos antes de una nueva evaluación.';
+      }
+
+      function limpiarClases(q) {
+        q.querySelectorAll('.option').forEach(opt => {
+          opt.classList.remove('correct', 'incorrect', 'missed');
+        });
+        const fb = q.querySelector('.feedback');
+        fb.className = 'feedback';
+        fb.textContent = '';
+      }
+
+      function corregir() {
+        let correctas = 0;
+
+        questions.forEach((q, idx) => {
+          limpiarClases(q);
+          const correcta = q.getAttribute('data-correct');
+          const elegida = q.querySelector('input[type="radio"]:checked');
+          const fb = q.querySelector('.feedback');
+          const opciones = Array.from(q.querySelectorAll('.option'));
+
+          const encontrarOpcion = (valor) =>
+            opciones.find(opt => {
+              const input = opt.querySelector('input[type="radio"]');
+              return input && input.value === valor;
+            });
+
+          const opcionCorrecta = encontrarOpcion(correcta);
+
+          if (!elegida) {
+            if (opcionCorrecta) opcionCorrecta.classList.add('missed');
+            fb.classList.add('show', 'warn');
+            fb.textContent = 'Sin responder. La respuesta correcta es ' + correcta + '.';
+            return;
+          }
+
+          if (elegida.value === correcta) {
+            correctas++;
+            const marcada = encontrarOpcion(elegida.value);
+            if (marcada) marcada.classList.add('correct');
+            fb.classList.add('show', 'ok');
+            fb.textContent = 'Correcta. La respuesta correcta es ' + correcta + '.';
+          } else {
+            const marcada = encontrarOpcion(elegida.value);
+            if (marcada) marcada.classList.add('incorrect');
+            if (opcionCorrecta) opcionCorrecta.classList.add('correct');
+            fb.classList.add('show', 'bad');
+            fb.textContent = 'Incorrecta. La respuesta correcta es ' + correcta + '.';
+          }
+        });
+
+        const total = questions.length;
+        const incorrectas = total - correctas;
+        const porcentaje = Math.round((correctas / total) * 100);
+
+        correctasEl.textContent = String(correctas);
+        incorrectasEl.textContent = String(incorrectas);
+        puntajeEl.textContent = correctas + ' / ' + total;
+        porcentajeEl.textContent = porcentaje + '%';
+        mensajeEl.textContent = mensajeFinal(porcentaje);
+        result.classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function reiniciar() {
+        form.reset();
+        questions.forEach(limpiarClases);
+        result.classList.remove('show');
+        correctasEl.textContent = '0';
+        incorrectasEl.textContent = '0';
+        puntajeEl.textContent = '0 / 25';
+        porcentajeEl.textContent = '0%';
+        mensajeEl.textContent = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      document.getElementById('sendBtn').addEventListener('click', corregir);
+      document.getElementById('resetBtn').addEventListener('click', reiniciar);
+    })();
+  </script>
+</body>
+</html>
